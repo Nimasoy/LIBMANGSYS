@@ -5,6 +5,7 @@ using Application;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
+using LIBSYSTEM.Middleware;
 namespace LIBSYSTEM
 {
     public class Program
@@ -17,6 +18,7 @@ namespace LIBSYSTEM
             builder.Services.AddIdentityCore<User>().AddEntityFrameworkStores<LibraryDbContext>();
             builder.Services.AddJwtAuthentication(builder.Configuration);
             builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
 
 
             builder.Host.UseSerilog((context, configuration) =>
@@ -39,6 +41,8 @@ namespace LIBSYSTEM
             }
 
             app.MapAllEndpoints();
+
+            app.UseMiddleware<GlobalExceptionMiddleware>();
 
             app.UseSerilogRequestLogging();
 

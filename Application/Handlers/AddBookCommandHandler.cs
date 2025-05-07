@@ -10,7 +10,7 @@ namespace Application.Handlers
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public AddBookCommandHandler(IUnitOfWork unitOfWork)
+        public AddBookCommandHandler(IUnitOfWork unitOfWork)    
         {
             _unitOfWork = unitOfWork;
         }
