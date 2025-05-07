@@ -43,5 +43,15 @@ namespace Infrastructure.Repositories
         {
             return await _context.Books.Where(b => b.Lendings.Any(l => l.UserId == userId)).ToListAsync();
         }
+        public async Task AddBookAsync(Book book)
+        {
+            await _context.Books.AddAsync(book);
+        }
+        public Task DeleteBookAsync(Book book)
+        {
+            _context.Books.Remove(book);
+            return Task.CompletedTask;
+        }
+
     }
 } 

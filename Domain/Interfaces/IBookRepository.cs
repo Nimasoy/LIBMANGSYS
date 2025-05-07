@@ -10,6 +10,8 @@ namespace Domain.Interfaces
 
         Task<IEnumerable<Book>> GetMostBorrowedAsync(int count);
         Task<IEnumerable<Book>> GetLeastBorrowedAsync(int count);
+        Task AddBookAsync(Book book);
+        Task DeleteBookAsync(Book book);
 
     }
 }

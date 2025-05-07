@@ -38,6 +38,11 @@ namespace Infrastructure.Repositories
                 _context.Tags.Remove(tag);
         }
 
+        public async Task<IEnumerable<Tag>> GetTagsByIdsAsync(IEnumerable<int> ids)
+        {
+            return await _context.Tags.Where(t => ids.Contains(t.Id)).ToListAsync();
+        }
+
 
     }
 } 

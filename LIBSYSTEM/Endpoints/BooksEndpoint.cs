@@ -38,7 +38,24 @@ namespace LIBSYSTEM.Endpoints
                 return Results.Ok(result);
             });
 
+            app.MapPost("/api/books", async (AddBookCommand command, ISender sender) =>
+            {
+                var result = await sender.Send(command);
+                return Results.Ok(result);
+            });
 
+            app.MapPut("/api/books/{id}", async (int id, UpdateBookCommand command, ISender sender) =>
+            {
+                if (id != command.Id) return Results.BadRequest("Mismatched book ID.");
+                await sender.Send(command);
+                return Results.NoContent();
+            });
+
+            app.MapDelete("/api/books/{id}", async (int id, ISender sender) =>
+            {
+                await sender.Send(new DeleteBookCommand(id));
+                return Results.NoContent();
+            });
         }
     }
 }

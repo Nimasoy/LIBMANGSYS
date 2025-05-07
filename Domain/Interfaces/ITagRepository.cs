@@ -11,5 +11,8 @@ namespace Domain.Interfaces
         Task AddTagAsync(Tag tag);
         Task DeleteTagAsync(int id);
 
+        Task<IEnumerable<Tag>> GetTagsByIdsAsync(IEnumerable<int> ids);
+
+
     }
 }
