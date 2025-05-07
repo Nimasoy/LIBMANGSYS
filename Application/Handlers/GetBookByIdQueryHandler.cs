@@ -1,6 +1,6 @@
 using Application.DTOs;
 using Application.Queries;
-using Application.Interfaces;
+using Domain.Interfaces;
 using AutoMapper;
 using MediatR;
 
@@ -21,8 +21,6 @@ namespace Application.Handlers
             var book = await _unitOfWork.Books.GetBookByIdAsync(request.Id);
             if (book == null) return null;
             var dto = _mapper.Map<BookDto>(book);
-
-            await _unitOfWork.SaveChangesAsync();
 
             return dto;
         }

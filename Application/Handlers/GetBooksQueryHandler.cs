@@ -1,5 +1,5 @@
 ﻿using Application.DTOs;
-using Application.Interfaces;
+using Domain.Interfaces;
 using MediatR;
 using AutoMapper;
 using Application.Queries;
@@ -19,8 +19,6 @@ namespace Application.Handlers
         public async Task<IEnumerable<BookDto>> Handle(GetBooksQuery request, CancellationToken cancellationToken)
         {
             var books = await _unitOfWork.Books.GetBooksAsync();
-
-            await _unitOfWork.SaveChangesAsync();
 
             return _mapper.Map<IEnumerable < BookDto >> (books);
         }

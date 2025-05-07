@@ -23,7 +23,7 @@ namespace LIBSYSTEM
             configuration.ReadFrom.Configuration(context.Configuration));
 
             builder.Services.AddInfrastructure(builder.Configuration);
-            new Application.DependencyInjection().ConfigureServices(builder.Services);
+            builder.Services.AddApplication();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

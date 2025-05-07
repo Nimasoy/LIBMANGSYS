@@ -3,7 +3,7 @@ using Domain.Interfaces;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace LibraryManagement.Infrastructure.Repositories
+namespace Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
     {
@@ -40,6 +40,9 @@ namespace LibraryManagement.Infrastructure.Repositories
             return Task.CompletedTask;
         }
 
-
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+        }
     }
 } 

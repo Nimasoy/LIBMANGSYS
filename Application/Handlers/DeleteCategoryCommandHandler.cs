@@ -1,5 +1,5 @@
 ﻿using Application.Commands;
-using Application.Interfaces;
+using Domain.Interfaces;
 using MediatR;
 
 namespace Application.Handlers

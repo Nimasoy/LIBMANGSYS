@@ -11,5 +11,8 @@ namespace Domain.Interfaces
         Task AddUserAsync(User user);
         Task UpdateUserAsync(User user);
         Task DeleteUserAsync(User user);
+
+        Task<User?> GetByEmailAsync(string email);
+
     }
 }

@@ -11,7 +11,7 @@ namespace LIBSYSTEM
             app.MapCategoriesEndpoints();
             app.MapTagsEndpoints();
             app.MapReportsEndpoints();
-
+            app.MapRegisterEndpoints();
         }
     }
 }

@@ -9,6 +9,13 @@ namespace LIBSYSTEM.Endpoints
     {
         public static void MapUsersEndpoints(this IEndpointRouteBuilder app)
         {
+
+            app.MapPost("/api/users/login", async (CreateLoginCommand command, ISender sender) =>
+            {
+                var token = await sender.Send(command);
+                return Results.Ok(new { Token = token });
+            });
+
             app.MapPost("api/users", async (CreateUserCommand command, ISender sender) =>
             {
                 var result = await sender.Send(command);

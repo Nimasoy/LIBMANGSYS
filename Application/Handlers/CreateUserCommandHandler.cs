@@ -1,6 +1,6 @@
 ﻿using Application.Commands;
 using Application.DTOs;
-using Application.Interfaces;
+using Domain.Interfaces;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using MediatR;

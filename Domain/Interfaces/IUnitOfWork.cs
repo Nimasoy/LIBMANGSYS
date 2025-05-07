@@ -1,6 +1,6 @@
 ﻿using Domain.Interfaces;
 
-namespace Application.Interfaces
+namespace Domain.Interfaces
 {
     public interface IUnitOfWork
     {
@@ -10,6 +10,10 @@ namespace Application.Interfaces
         IReservationRepository Reservations { get; }
         ITagRepository Tags { get; }
         IUserRepository Users { get; }
+
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
         Task<int> SaveChangesAsync();
     }
 }

@@ -3,7 +3,7 @@ using MediatR;
 
 namespace LIBSYSTEM.Endpoints
 {
-    public static class ReportsEndpoints
+    public static class ReportsEndpoint
     {
         public static void MapReportsEndpoints(this IEndpointRouteBuilder app)
         {

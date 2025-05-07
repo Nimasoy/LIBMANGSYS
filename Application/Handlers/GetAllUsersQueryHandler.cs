@@ -1,5 +1,5 @@
 ﻿using Application.DTOs;
-using Application.Interfaces;
+using Domain.Interfaces;
 using Application.Queries;
 using AutoMapper;
 using MediatR;

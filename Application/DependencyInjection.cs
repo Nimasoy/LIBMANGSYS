@@ -2,12 +2,13 @@
 using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Application.Commands;
 
 namespace Application
 {
-    public class DependencyInjection
+    public static class DependencyInjection
     {
-        public void ConfigureServices(IServiceCollection services)
+        public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             services.AddMediatR(cfg =>
             {
@@ -15,7 +16,8 @@ namespace Application
             });
 
             services.AddAutoMapper(typeof(DependencyInjection).Assembly);
+            return services;
         }
-
     }
 }
+       
