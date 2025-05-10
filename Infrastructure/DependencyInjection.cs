@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Application.Interfaces;
 using Infrastructure.Persistence;
+using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure
 {
@@ -24,7 +26,12 @@ namespace Infrastructure
             services.AddScoped<IReservationRepository, ReservationRepository>();
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
-          
+
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+            services.AddScoped<ITokenService, TokenService>();
+
             return services;
         }
     }

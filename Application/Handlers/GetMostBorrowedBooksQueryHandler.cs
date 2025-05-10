@@ -8,25 +8,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Services;
 
 namespace Application.Handlers
 {
     public class GetMostBorrowedBooksQueryHandler : IRequestHandler<GetMostBorrowedBooksQuery, IEnumerable<BookDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+        private readonly BookService _bookService;
 
-        public GetMostBorrowedBooksQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        public GetMostBorrowedBooksQueryHandler(BookService bookService)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
+            _bookService = bookService;
         }
 
         public async Task<IEnumerable<BookDto>> Handle(GetMostBorrowedBooksQuery request, CancellationToken cancellationToken)
         {
-            var books = await _unitOfWork.Books.GetMostBorrowedAsync(request.Count);
-            return _mapper.Map<IEnumerable<BookDto>>(books);
+            return await _bookService.GetMostBorrowedAsync(request.Count);
         }
     }
+
 
 }

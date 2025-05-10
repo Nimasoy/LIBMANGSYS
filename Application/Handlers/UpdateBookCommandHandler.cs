@@ -1,4 +1,5 @@
 ﻿using Application.Commands;
+using Application.Services;
 using Domain.Interfaces;
 using MediatR;
 using System;
@@ -11,27 +12,19 @@ namespace Application.Handlers
 {
     public class UpdateBookCommandHandler : IRequestHandler<UpdateBookCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly BookService _bookService;
 
-        public UpdateBookCommandHandler(IUnitOfWork unitOfWork)
+        public UpdateBookCommandHandler(BookService bookService)
         {
-            _unitOfWork = unitOfWork;
+            _bookService = bookService;
         }
 
         public async Task<Unit> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
         {
-            var book = await _unitOfWork.Books.GetBookByIdAsync(request.Id);
-            if (book == null) throw new Exception("Book not found.");
-
-            book.Title = request.Title;
-            book.Author = request.Author;
-            book.CategoryId = request.CategoryId;
-            book.Tags = (await _unitOfWork.Tags.GetTagsByIdsAsync(request.TagIds)).ToList();
-
-            await _unitOfWork.Books.UpdateBook(book);
-            await _unitOfWork.SaveChangesAsync();
+            await _bookService.UpdateBookAsync(request);
             return Unit.Value;
         }
     }
+
 
 }

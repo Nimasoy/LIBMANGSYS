@@ -9,5 +9,7 @@ namespace Domain.Interfaces
         Task<Lending?> GetActiveLendingAsync(int bookId, int userId);
         Task AddLendingAsync(Lending lending);
         Task UpdateLending(Lending lending);
+        Task<IEnumerable<Lending>> GetOverdueLendingsAsync();
+        Task<IEnumerable<Lending>> GetUserOverdueLendingsAsync(int userId);
     }
 }

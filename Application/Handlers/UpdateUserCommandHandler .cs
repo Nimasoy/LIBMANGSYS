@@ -2,32 +2,25 @@
 using Domain.Interfaces;
 using AutoMapper;
 using MediatR;
+using Application.Services;
 
 namespace Application.Handlers
 {
     public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+        private readonly UserService _userService;
 
-        public UpdateUserCommandHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        public UpdateUserCommandHandler(UserService userService)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
+            _userService = userService;
         }
 
         public async Task<Unit> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
         {
-            var user = await _unitOfWork.Users.GetUserByIdAsync(request.Id);
-            if (user is null) throw new Exception("User not found.");
-            user.UserName = request.UserName;
-            user.Email = request.Email;
-            await _unitOfWork.Users.UpdateUserAsync(user);
-
-            await _unitOfWork.SaveChangesAsync();
-
+            await _userService.UpdateUserAsync(request);
             return Unit.Value;
         }
     }
+
 
 }

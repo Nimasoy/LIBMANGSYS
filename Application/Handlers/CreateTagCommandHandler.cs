@@ -2,27 +2,25 @@
 using Domain.Interfaces;
 using Domain.Entities;
 using MediatR;
+using Application.Services;
 
 namespace Application.Handlers
 {
     public class CreateTagCommandHandler : IRequestHandler<CreateTagCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly TagService _tagService;
 
-        public CreateTagCommandHandler(IUnitOfWork unitOfWork)
+        public CreateTagCommandHandler(TagService tagService)
         {
-            _unitOfWork = unitOfWork;
-        } 
+            _tagService = tagService;
+        }
 
         public async Task<Unit> Handle(CreateTagCommand request, CancellationToken cancellationToken)
         {
-            var tag = new Tag { Name = request.Name };
-            await _unitOfWork.Tags.AddTagAsync(tag);
-
-            await _unitOfWork.SaveChangesAsync();
-
+            await _tagService.CreateTagAsync(request.Name);
             return Unit.Value;
         }
     }
+
 
 }

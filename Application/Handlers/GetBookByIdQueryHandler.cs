@@ -3,26 +3,23 @@ using Application.Queries;
 using Domain.Interfaces;
 using AutoMapper;
 using MediatR;
+using Application.Services;
 
 namespace Application.Handlers
 {
-    public class GetBookByIdQueryHandler : IRequestHandler<GetBookByIdQuery, BookDto?>
+    public class GetBookByIdQueryHandler : IRequestHandler<GetBookByIdQuery, BookDto>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        public GetBookByIdQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly BookService _bookService;
+
+        public GetBookByIdQueryHandler(BookService bookService)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
+            _bookService = bookService;
         }
 
-        public async Task<BookDto?> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
+        public async Task<BookDto> Handle(GetBookByIdQuery request, CancellationToken cancellationToken)
         {
-            var book = await _unitOfWork.Books.GetBookByIdAsync(request.Id);
-            if (book == null) return null;
-            var dto = _mapper.Map<BookDto>(book);
-
-            return dto;
+            return await _bookService.GetBookByIdAsync(request.Id);
         }
     }
-} 
+
+}

@@ -13,6 +13,7 @@ namespace Domain.Interfaces
         Task DeleteUserAsync(User user);
 
         Task<User?> GetByEmailAsync(string email);
+        Task<IEnumerable<Lending>> GetUserBorrowingHistoryAsync(int userId);
 
     }
 }

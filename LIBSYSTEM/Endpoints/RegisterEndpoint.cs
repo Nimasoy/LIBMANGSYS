@@ -7,11 +7,14 @@ namespace LIBSYSTEM.Endpoints
     {
         public static void MapRegisterEndpoints(this IEndpointRouteBuilder app)
         {
+            // all users access
+
+            // login
             app.MapPost("/api/users/login", async (CreateLoginCommand command, ISender sender) =>
             {
                 var result = await sender.Send(command);
                 return Results.Ok(result);
-            });
+            }).WithTags("Login");
 
         }
     }

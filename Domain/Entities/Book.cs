@@ -7,6 +7,7 @@ namespace Domain.Entities
         public int Id { get; set; }
         public required string Title { get; set; }
         public required string Author { get; set; }
+        public int InventoryCount { get; set; }
         public int CategoryId { get; set; }
         public required Category Category { get; set; }
         public ICollection<Tag> Tags { get; set; } = [];

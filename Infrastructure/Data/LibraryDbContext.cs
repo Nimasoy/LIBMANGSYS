@@ -1,14 +1,13 @@
 using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 
 namespace Infrastructure.Data
 {
-    public class LibraryDbContext : IdentityDbContext<User, IdentityRole<int>, int>
+    public class LibraryDbContext : DbContext
     {
         public LibraryDbContext(DbContextOptions<LibraryDbContext> options) : base(options) { }
 
+        public DbSet<User> Users { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Tag> Tags { get; set; }

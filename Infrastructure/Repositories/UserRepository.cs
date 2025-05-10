@@ -44,5 +44,14 @@ namespace Infrastructure.Repositories
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
+        public async Task<IEnumerable<Lending>> GetUserBorrowingHistoryAsync(int userId)
+        {
+            return await _context.Lendings
+                .Include(l => l.Book)
+                .Where(l => l.UserId == userId)
+                .OrderByDescending(l => l.BorrowedAt)
+                .ToListAsync();
+        }
+
     }
 } 

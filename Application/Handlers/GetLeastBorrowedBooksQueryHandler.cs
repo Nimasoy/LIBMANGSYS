@@ -3,25 +3,24 @@ using Domain.Interfaces;
 using Application.Queries;
 using AutoMapper;
 using MediatR;
+using Application.Services;
 
 namespace Application.Handlers
 {
     public class GetLeastBorrowedBooksQueryHandler : IRequestHandler<GetLeastBorrowedBooksQuery, IEnumerable<BookDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+        private readonly BookService _bookService;
 
-        public GetLeastBorrowedBooksQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        public GetLeastBorrowedBooksQueryHandler(BookService bookService)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
+            _bookService = bookService;
         }
 
         public async Task<IEnumerable<BookDto>> Handle(GetLeastBorrowedBooksQuery request, CancellationToken cancellationToken)
         {
-            var books = await _unitOfWork.Books.GetLeastBorrowedAsync(request.Count);
-            return _mapper.Map<IEnumerable<BookDto>>(books);
+            return await _bookService.GetLeastBorrowedAsync(request.Count);
         }
     }
+
 
 }

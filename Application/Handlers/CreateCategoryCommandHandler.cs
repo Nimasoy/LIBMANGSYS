@@ -2,27 +2,25 @@
 using Domain.Interfaces;
 using Domain.Entities;
 using MediatR;
+using Application.Services;
 
 namespace Application.Handlers
 {
     public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly CategoryService _categoryService;
 
-        public CreateCategoryCommandHandler(IUnitOfWork unitOfWork)
+        public CreateCategoryCommandHandler(CategoryService categoryService)
         {
-            _unitOfWork = unitOfWork;
+            _categoryService = categoryService;
         }
 
         public async Task<Unit> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
-            var category = new Category { Name = request.Name };
-            await _unitOfWork.Categories.AddCategoryAsync(category);
-
-            await _unitOfWork.SaveChangesAsync();
-
+            await _categoryService.CreateCategoryAsync(request);
             return Unit.Value;
         }
     }
+
 
 }

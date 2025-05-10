@@ -3,24 +3,23 @@ using Domain.Interfaces;
 using MediatR;
 using AutoMapper;
 using Application.Queries;
+using Application.Services;
 
 namespace Application.Handlers
 {
     public class GetCategoriesQueryHandler : IRequestHandler<GetCategoriesQuery, IEnumerable<CategoryDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        public GetCategoriesQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly CategoryService _categoryService;
+
+        public GetCategoriesQueryHandler(CategoryService categoryService)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
+            _categoryService = categoryService;
         }
 
         public async Task<IEnumerable<CategoryDto>> Handle(GetCategoriesQuery request, CancellationToken cancellationToken)
         {
-            var categories = await _unitOfWork.Categories.GetCategoriesAsync();
-
-            return _mapper.Map<IEnumerable<CategoryDto>>(categories);
+            return await _categoryService.GetCategoriesAsync();
         }
     }
+
 }

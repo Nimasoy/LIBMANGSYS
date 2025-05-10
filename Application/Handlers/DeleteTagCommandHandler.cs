@@ -1,4 +1,5 @@
 ﻿using Application.Commands;
+using Application.Services;
 using Domain.Interfaces;
 using MediatR;
 
@@ -6,21 +7,19 @@ namespace Application.Handlers
 {
     public class DeleteTagCommandHandler : IRequestHandler<DeleteTagCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly TagService _tagService;
 
-        public DeleteTagCommandHandler(IUnitOfWork unitOfWork)
+        public DeleteTagCommandHandler(TagService tagService)
         {
-            _unitOfWork = unitOfWork;
+            _tagService = tagService;
         }
 
         public async Task<Unit> Handle(DeleteTagCommand request, CancellationToken cancellationToken)
         {
-            await _unitOfWork.Tags.DeleteTagAsync(request.Id);
-
-            await _unitOfWork.SaveChangesAsync();
-
+            await _tagService.DeleteTagAsync(request.Id);
             return Unit.Value;
         }
     }
+
 
 }

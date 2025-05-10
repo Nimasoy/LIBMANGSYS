@@ -3,24 +3,23 @@ using Domain.Interfaces;
 using MediatR;
 using AutoMapper;
 using Application.Queries;
+using Application.Services;
 
 namespace Application.Handlers
 {
     public class GetBooksQueryHandler : IRequestHandler<GetBooksQuery, IEnumerable<BookDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        public GetBooksQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        private readonly BookService _bookService;
+
+        public GetBooksQueryHandler(BookService bookService)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
+            _bookService = bookService;
         }
 
         public async Task<IEnumerable<BookDto>> Handle(GetBooksQuery request, CancellationToken cancellationToken)
         {
-            var books = await _unitOfWork.Books.GetBooksAsync();
-
-            return _mapper.Map<IEnumerable < BookDto >> (books);
+            return await _bookService.GetBooksAsync();
         }
     }
+
 }

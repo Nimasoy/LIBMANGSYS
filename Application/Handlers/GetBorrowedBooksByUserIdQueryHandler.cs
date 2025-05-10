@@ -8,25 +8,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Services;
 
 namespace Application.Handlers
 {
     public class GetBorrowedBooksByUserIdQueryHandler : IRequestHandler<GetBorrowedBooksByUserIdQuery, IEnumerable<BookDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+        private readonly BookService _bookService;
 
-        public GetBorrowedBooksByUserIdQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        public GetBorrowedBooksByUserIdQueryHandler(BookService bookService)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
+            _bookService = bookService;
         }
 
         public async Task<IEnumerable<BookDto>> Handle(GetBorrowedBooksByUserIdQuery request, CancellationToken cancellationToken)
         {
-            var books = await _unitOfWork.Books.GetBorrowedBooksByUserId(request.Id);
-            return _mapper.Map<IEnumerable<BookDto>>(books);
+            return await _bookService.GetBorrowedBooksByUserIdAsync(request.Id);
         }
     }
+
 
 }

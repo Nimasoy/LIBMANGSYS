@@ -3,25 +3,24 @@ using Domain.Interfaces;
 using Application.Queries;
 using AutoMapper;
 using MediatR;
+using Application.Services;
 
 namespace Application.Handlers
 {
     public class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery, IEnumerable<UserDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+        private readonly UserService _userService;
 
-        public GetAllUsersQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
+        public GetAllUsersQueryHandler(UserService userService)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
+            _userService = userService;
         }
 
         public async Task<IEnumerable<UserDto>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
         {
-            var users = await _unitOfWork.Users.GetUsersAsync();
-            return _mapper.Map<IEnumerable<UserDto>>(users);
+            return await _userService.GetAllUsersAsync();
         }
     }
+
 
 }

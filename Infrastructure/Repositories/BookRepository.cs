@@ -16,27 +16,27 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<Book>> GetBooksAsync()
         {
-            return await _context.Books.ToListAsync();
+            return await _context.Books.AsTracking().Include(b => b.Category).Include(b => b.Tags).ToListAsync();
         }
 
         public async Task<Book?> GetBookByIdAsync(int id)
         {
-            return await _context.Books.FindAsync(id);
+            return await _context.Books.AsTracking().Include(b => b.Category).Include(b => b.Tags).FirstOrDefaultAsync(b => b.Id == id);
         }
 
         public async Task<IEnumerable<Book>> GetMostBorrowedAsync(int count)
         {
-            return await _context.Books.OrderByDescending(b => b.Lendings.Count).Take(count).ToListAsync();
+            return await _context.Books.Include(b => b.Category).Include(b => b.Tags).OrderByDescending(b => b.Lendings.Count).Take(count).ToListAsync();
         }
         public async Task<IEnumerable<Book>> GetLeastBorrowedAsync(int count)
         {
-            return await _context.Books.OrderBy(b => b.Lendings.Count).Take(count).ToListAsync();
+            return await _context.Books.Include(b => b.Category).Include(b => b.Tags).OrderByDescending(b => b.Lendings.Count).Take(count).ToListAsync();
         }
 
-        public Task UpdateBook(Book book)
+        public async Task UpdateBookAsync(Book book)
         {
             _context.Books.Update(book);
-            return Task.CompletedTask;
+            await _context.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<Book>> GetBorrowedBooksByUserId(int userId)

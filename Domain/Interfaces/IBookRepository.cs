@@ -5,7 +5,7 @@ namespace Domain.Interfaces
     {
         Task<IEnumerable<Book>> GetBooksAsync();
         Task<Book?> GetBookByIdAsync(int id);
-        Task UpdateBook(Book book);
+        Task UpdateBookAsync(Book book);
         Task<IEnumerable<Book>> GetBorrowedBooksByUserId(int userId);
 
         Task<IEnumerable<Book>> GetMostBorrowedAsync(int count);

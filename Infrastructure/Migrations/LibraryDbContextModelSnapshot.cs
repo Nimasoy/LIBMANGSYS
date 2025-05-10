@@ -52,6 +52,9 @@ namespace Infrastructure.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
+                    b.Property<int>("InventoryCount")
+                        .HasColumnType("int");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -174,9 +177,15 @@ namespace Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("MaxBorrowLimit")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(5);
 
                     b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

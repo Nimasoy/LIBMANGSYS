@@ -33,5 +33,19 @@ namespace Infrastructure.Repositories
             return reservation;
         }
 
+        public async Task<IEnumerable<Reservation>> GetActiveReservationsForBookAsync(int bookId)
+        {
+            return await _context.Reservations
+                .Include(r => r.User)
+                .Where(r => r.BookId == bookId && r.ExpiresAt > DateTime.UtcNow)
+                .ToListAsync();
+        }
+
+        public Task RemoveReservationAsync(Reservation reservation)
+        {
+            _context.Reservations.Remove(reservation);
+            return Task.CompletedTask;
+        }
+
     }   
 } 

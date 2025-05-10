@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35806.99 d17.13
+VisualStudioVersion = 17.13.35806.99
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LIBSYSTEM", "LIBSYSTEM\LIBSYSTEM.csproj", "{6B576575-D242-406D-9C66-1D8AFA4E457E}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{52FC6121-1F2E-43B4-8877-EAA5DCB91F88}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{3A463463-38D5-4085-9889-F9CAD0475036}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibTest", "LibTest\LibTest.csproj", "{C660F954-593A-435D-8AA6-8DD4703259D8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{3A463463-38D5-4085-9889-F9CAD0475036}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A463463-38D5-4085-9889-F9CAD0475036}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A463463-38D5-4085-9889-F9CAD0475036}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C660F954-593A-435D-8AA6-8DD4703259D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C660F954-593A-435D-8AA6-8DD4703259D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C660F954-593A-435D-8AA6-8DD4703259D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C660F954-593A-435D-8AA6-8DD4703259D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

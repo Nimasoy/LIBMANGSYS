@@ -1,4 +1,5 @@
 ﻿using Application.Commands;
+using Application.Services;
 using Domain.Interfaces;
 using MediatR;
 
@@ -6,23 +7,19 @@ namespace Application.Handlers
 {
     public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly CategoryService _categoryService;
 
-        public DeleteCategoryCommandHandler(IUnitOfWork unitOfWork)
+        public DeleteCategoryCommandHandler(CategoryService categoryService)
         {
-            _unitOfWork = unitOfWork;
+            _categoryService = categoryService;
         }
 
         public async Task<Unit> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
         {
-            var category = await _unitOfWork.Categories.GetCategoryByIdAsync(request.Id);
-            if (category == null) throw new Exception("Category not found.");
-            await _unitOfWork.Categories.DeleteCategoryAsync(category);
-
-            await _unitOfWork.SaveChangesAsync();
-
+            await _categoryService.DeleteCategoryAsync(request);
             return Unit.Value;
         }
     }
+
 
 }

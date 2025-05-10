@@ -1,4 +1,5 @@
 ﻿using Application.Commands;
+using Application.Services;
 using Domain.Interfaces;
 using MediatR;
 using System;
@@ -11,22 +12,19 @@ namespace Application.Handlers
 {
     public class DeleteBookCommandHandler : IRequestHandler<DeleteBookCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly BookService _bookService;
 
-        public DeleteBookCommandHandler(IUnitOfWork unitOfWork)
+        public DeleteBookCommandHandler(BookService bookService)
         {
-            _unitOfWork = unitOfWork;
+            _bookService = bookService;
         }
 
         public async Task<Unit> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
         {
-            var book = await _unitOfWork.Books.GetBookByIdAsync(request.Id);
-            if (book == null) throw new Exception("Book not found.");
-
-            await _unitOfWork.Books.DeleteBookAsync(book);
-            await _unitOfWork.SaveChangesAsync();
+            await _bookService.DeleteBookAsync(request.Id);
             return Unit.Value;
         }
     }
+
 
 }

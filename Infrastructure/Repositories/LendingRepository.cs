@@ -25,11 +25,13 @@ namespace Infrastructure.Repositories
 
         public async Task<Lending?> GetActiveLendingAsync(int bookId, int userId)
         {
-            return await _context.Lendings.FirstOrDefaultAsync(
-               l =>
-               l.BookId == bookId
-            && l.UserId == userId
-            && l.ReturnedAt == null);
+            return await _context.Lendings
+        .Include(l => l.Book) 
+        .FirstOrDefaultAsync(
+           l =>
+           l.BookId == bookId &&
+           l.UserId == userId &&
+           l.ReturnedAt == null);
         }
         public async Task AddLendingAsync(Lending lending)
         {
@@ -40,6 +42,24 @@ namespace Infrastructure.Repositories
         {
             _context.Lendings.Update(lending);
             return Task.CompletedTask;
+        }
+        public async Task<IEnumerable<Lending>> GetOverdueLendingsAsync()
+        {
+            return await _context.Lendings
+                .Include(l => l.Book)
+                .Include(l => l.User)
+                .Where(l => l.ReturnedAt == null && l.DueAt < DateTime.UtcNow)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Lending>> GetUserOverdueLendingsAsync(int userId)
+        {
+            return await _context.Lendings
+                .Include(l => l.Book)
+                .Where(l => l.UserId == userId &&
+                           l.ReturnedAt == null &&
+                           l.DueAt < DateTime.UtcNow)
+                .ToListAsync();
         }
     }
 }

@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using Application.Commands;
+using Application.Services;
 
 namespace Application
 {
@@ -16,6 +17,12 @@ namespace Application
             });
 
             services.AddAutoMapper(typeof(DependencyInjection).Assembly);
+
+            services.AddScoped<UserService>();
+            services.AddScoped<BookService>();
+            services.AddScoped<CategoryService>();
+            services.AddScoped<TagService>();
+
             return services;
         }
     }

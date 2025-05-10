@@ -1,4 +1,5 @@
 ﻿using Application.Commands;
+using Application.Services;
 using Domain.Interfaces;
 using MediatR;
 
@@ -6,24 +7,19 @@ namespace Application.Handlers
 {
     public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly CategoryService _categoryService;
 
-        public UpdateCategoryCommandHandler(IUnitOfWork unitOfWork)
+        public UpdateCategoryCommandHandler(CategoryService categoryService)
         {
-            _unitOfWork = unitOfWork;
+            _categoryService = categoryService;
         }
 
         public async Task<Unit> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
         {
-            var category = await _unitOfWork.Categories.GetCategoryByIdAsync(request.Id);
-            if (category == null) throw new Exception("Category not found.");
-            category.Name = request.Name;
-            await _unitOfWork.Categories.UpdateCategoryAsync(category);
-
-            await _unitOfWork.SaveChangesAsync();
-
+            await _categoryService.UpdateCategoryAsync(request);
             return Unit.Value;
         }
     }
+
 
 }
