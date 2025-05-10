@@ -5,15 +5,15 @@ using Microsoft.Extensions.Logging;
 using AutoMapper;
 using Domain.Enums;
 using Domain.Entities;
-using Application.Services;
+using Application.Interfaces;
 
 namespace Application.Handlers
 {
     public class BorrowBookCommandHandler : IRequestHandler<BorrowBookCommand, Unit>
     {
-        private readonly BookService _bookService;
+        private readonly IBookService _bookService;
 
-        public BorrowBookCommandHandler(BookService bookService)
+        public BorrowBookCommandHandler(IBookService bookService)
         {
             _bookService = bookService;
         }

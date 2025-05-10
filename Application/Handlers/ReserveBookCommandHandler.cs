@@ -6,15 +6,14 @@ using Application.Interfaces;
 using AutoMapper;
 using Domain.Enums;
 using Domain.Entities;
-using Application.Services;
 
 namespace Application.Handlers
 {
     public class ReserveBookCommandHandler : IRequestHandler<ReserveBookCommand, Unit>
     {
-        private readonly BookService _bookService;
+        private readonly IBookService _bookService;
 
-        public ReserveBookCommandHandler(BookService bookService)
+        public ReserveBookCommandHandler(IBookService bookService)
         {
             _bookService = bookService;
         }

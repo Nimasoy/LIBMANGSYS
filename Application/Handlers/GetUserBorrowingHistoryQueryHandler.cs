@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.Interfaces;
 using Application.Queries;
 using AutoMapper;
 using Domain.Interfaces;
@@ -9,26 +10,16 @@ namespace Application.Handlers
 {
     public class GetUserBorrowingHistoryQueryHandler : IRequestHandler<GetUserBorrowingHistoryQuery, IEnumerable<BorrowingHistoryDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        private readonly ILogger<GetUserBorrowingHistoryQueryHandler> _logger;
+        private readonly IUserService _userService;
 
-        public GetUserBorrowingHistoryQueryHandler(
-            IUnitOfWork unitOfWork,
-            IMapper mapper,
-            ILogger<GetUserBorrowingHistoryQueryHandler> logger)
+        public GetUserBorrowingHistoryQueryHandler(IUserService userService)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _logger = logger;
+            _userService = userService;
         }
 
-        public async Task<IEnumerable<BorrowingHistoryDto>> Handle(
-            GetUserBorrowingHistoryQuery request,
-            CancellationToken cancellationToken)
+        public async Task<IEnumerable<BorrowingHistoryDto>> Handle(GetUserBorrowingHistoryQuery request, CancellationToken cancellationToken)
         {
-            var history = await _unitOfWork.Users.GetUserBorrowingHistoryAsync(request.UserId);
-            return _mapper.Map<IEnumerable<BorrowingHistoryDto>>(history);
+            return await _userService.GetUserBorrowingHistoryAsync(request.UserId);
         }
     }
 }

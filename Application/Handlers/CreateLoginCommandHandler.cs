@@ -1,15 +1,14 @@
 ﻿using Application.Commands;
 using MediatR;
-
-using Application.Services;
+using Application.Interfaces;
 
 namespace Application.Handlers
 {
     public class CreateLoginCommandHandler : IRequestHandler<CreateLoginCommand, string>
     {
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
-        public CreateLoginCommandHandler(UserService userService)
+        public CreateLoginCommandHandler(IUserService userService)
         {
             _userService = userService;
         }

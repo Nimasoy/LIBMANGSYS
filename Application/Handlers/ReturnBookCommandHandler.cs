@@ -3,15 +3,15 @@ using AutoMapper;
 using Application.Commands;
 using MediatR;
 using Domain.Enums;
-using Application.Services;
+using Application.Interfaces;
 
 namespace Application.Handlers
 {
     public class ReturnBookCommandHandler : IRequestHandler<ReturnBookCommand, Unit>
     {
-        private readonly BookService _bookService;
+        private readonly IBookService _bookService;
 
-        public ReturnBookCommandHandler(BookService bookService)
+        public ReturnBookCommandHandler(IBookService bookService)
         {
             _bookService = bookService;
         }

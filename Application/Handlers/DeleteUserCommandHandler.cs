@@ -2,15 +2,15 @@
 using Domain.Interfaces;
 using AutoMapper;
 using MediatR;
-using Application.Services;
+using Application.Interfaces;
 
 namespace Application.Handlers
 {
     public class DeleteUserCommandHandler : IRequestHandler<DeleteUserCommand, Unit>
     {
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
-        public DeleteUserCommandHandler(UserService userService)
+        public DeleteUserCommandHandler(IUserService userService)
         {
             _userService = userService;
         }

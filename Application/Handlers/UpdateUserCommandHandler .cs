@@ -2,15 +2,15 @@
 using Domain.Interfaces;
 using AutoMapper;
 using MediatR;
-using Application.Services;
+using Application.Interfaces;
 
 namespace Application.Handlers
 {
     public class UpdateUserCommandHandler : IRequestHandler<UpdateUserCommand, Unit>
     {
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
-        public UpdateUserCommandHandler(UserService userService)
+        public UpdateUserCommandHandler(IUserService userService)
         {
             _userService = userService;
         }

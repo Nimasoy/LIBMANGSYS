@@ -8,15 +8,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Application.Services;
+using Application.Interfaces;
 
 namespace Application.Handlers
 {
     public class GetMostBorrowedBooksQueryHandler : IRequestHandler<GetMostBorrowedBooksQuery, IEnumerable<BookDto>>
     {
-        private readonly BookService _bookService;
+        private readonly IBookService _bookService;
 
-        public GetMostBorrowedBooksQueryHandler(BookService bookService)
+        public GetMostBorrowedBooksQueryHandler(IBookService bookService)
         {
             _bookService = bookService;
         }

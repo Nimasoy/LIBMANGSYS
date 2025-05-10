@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.Interfaces;
 using Application.Queries;
 using AutoMapper;
 using Domain.Interfaces;
@@ -14,26 +15,17 @@ namespace Application.Handlers
 {
     public class GetUserOverdueBooksQueryHandler : IRequestHandler<GetUserOverdueBooksQuery, IEnumerable<UserOverdueDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
-        private readonly ILogger<GetUserOverdueBooksQueryHandler> _logger;
+        private readonly IUserService _userService;
 
-        public GetUserOverdueBooksQueryHandler(
-            IUnitOfWork unitOfWork,
-            IMapper mapper,
-            ILogger<GetUserOverdueBooksQueryHandler> logger)
+        public GetUserOverdueBooksQueryHandler(IUserService userService)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-            _logger = logger;
+            _userService = userService;
         }
 
-        public async Task<IEnumerable<UserOverdueDto>> Handle(
-            GetUserOverdueBooksQuery request,
-            CancellationToken cancellationToken)
+        public async Task<IEnumerable<UserOverdueDto>> Handle(GetUserOverdueBooksQuery request, CancellationToken cancellationToken)
         {
-            var overdueLendings = await _unitOfWork.Lendings.GetUserOverdueLendingsAsync(request.UserId);
-            return _mapper.Map<IEnumerable<UserOverdueDto>>(overdueLendings);
+            return await _userService.GetUserOverdueBooksAsync(request.UserId);
         }
     }
+
 }

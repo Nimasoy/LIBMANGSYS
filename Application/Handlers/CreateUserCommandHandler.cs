@@ -5,15 +5,15 @@ using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using MediatR;
 using AutoMapper;
-using Application.Services;
+using Application.Interfaces;
 
 namespace Application.Handlers
 {
     public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, UserDto>
     {
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
-        public CreateUserCommandHandler(UserService userService)
+        public CreateUserCommandHandler(IUserService userService)
         {
             _userService = userService;
         }

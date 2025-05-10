@@ -1,5 +1,5 @@
 ﻿using Application.Commands;
-using Application.Services;
+using Application.Interfaces;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Interfaces;
@@ -9,9 +9,9 @@ namespace Application.Handlers
 {
     public class AddBookCommandHandler : IRequestHandler<AddBookCommand, int>
     {
-        private readonly BookService _bookService;
+        private readonly IBookService _bookService;
 
-        public AddBookCommandHandler(BookService bookService)
+        public AddBookCommandHandler(IBookService bookService)
         {
             _bookService = bookService;
         }
@@ -21,6 +21,4 @@ namespace Application.Handlers
             return await _bookService.AddBookAsync(request);
         }
     }
-
-
 }

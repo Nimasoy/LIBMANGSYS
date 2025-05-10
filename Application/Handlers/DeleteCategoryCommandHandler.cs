@@ -1,5 +1,5 @@
 ﻿using Application.Commands;
-using Application.Services;
+using Application.Interfaces;
 using Domain.Interfaces;
 using MediatR;
 
@@ -7,9 +7,9 @@ namespace Application.Handlers
 {
     public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommand, Unit>
     {
-        private readonly CategoryService _categoryService;
+        private readonly ICategoryService _categoryService;
 
-        public DeleteCategoryCommandHandler(CategoryService categoryService)
+        public DeleteCategoryCommandHandler(ICategoryService categoryService)
         {
             _categoryService = categoryService;
         }

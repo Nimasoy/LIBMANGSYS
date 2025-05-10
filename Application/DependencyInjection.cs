@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 using Application.Commands;
 using Application.Services;
+using Application.Interfaces;
 
 namespace Application
 {
@@ -18,10 +19,11 @@ namespace Application
 
             services.AddAutoMapper(typeof(DependencyInjection).Assembly);
 
-            services.AddScoped<UserService>();
-            services.AddScoped<BookService>();
-            services.AddScoped<CategoryService>();
-            services.AddScoped<TagService>();
+            services.AddScoped<IBookService, BookService>();
+            services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<ITagService, TagService>();
+            services.AddScoped<IUserService, UserService>();
+
 
             return services;
         }

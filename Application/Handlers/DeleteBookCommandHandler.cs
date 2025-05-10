@@ -1,5 +1,5 @@
 ﻿using Application.Commands;
-using Application.Services;
+using Application.Interfaces;
 using Domain.Interfaces;
 using MediatR;
 using System;
@@ -12,9 +12,9 @@ namespace Application.Handlers
 {
     public class DeleteBookCommandHandler : IRequestHandler<DeleteBookCommand, Unit>
     {
-        private readonly BookService _bookService;
+        private readonly IBookService _bookService;
 
-        public DeleteBookCommandHandler(BookService bookService)
+        public DeleteBookCommandHandler(IBookService bookService)
         {
             _bookService = bookService;
         }

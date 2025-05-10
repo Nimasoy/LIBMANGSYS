@@ -2,15 +2,15 @@
 using Domain.Interfaces;
 using Domain.Entities;
 using MediatR;
-using Application.Services;
+using Application.Interfaces;
 
 namespace Application.Handlers
 {
     public class CreateCategoryCommandHandler : IRequestHandler<CreateCategoryCommand, Unit>
     {
-        private readonly CategoryService _categoryService;
+        private readonly ICategoryService _categoryService;
 
-        public CreateCategoryCommandHandler(CategoryService categoryService)
+        public CreateCategoryCommandHandler(ICategoryService categoryService)
         {
             _categoryService = categoryService;
         }

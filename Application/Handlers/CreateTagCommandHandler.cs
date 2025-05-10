@@ -2,15 +2,15 @@
 using Domain.Interfaces;
 using Domain.Entities;
 using MediatR;
-using Application.Services;
+using Application.Interfaces;
 
 namespace Application.Handlers
 {
     public class CreateTagCommandHandler : IRequestHandler<CreateTagCommand, Unit>
     {
-        private readonly TagService _tagService;
+        private readonly ITagService _tagService;
 
-        public CreateTagCommandHandler(TagService tagService)
+        public CreateTagCommandHandler(ITagService tagService)
         {
             _tagService = tagService;
         }

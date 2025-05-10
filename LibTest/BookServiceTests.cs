@@ -15,6 +15,11 @@ namespace LibTest
 {
     public class BookServiceTests
     {
+        private readonly Mock<IBookRepository> _bookRepoMock;
+        private readonly Mock<ITagRepository> _tagRepoMock;
+        private readonly Mock<IUserRepository> _userRepoMock;
+        private readonly Mock<ILendingRepository> _lendingRepoMock;
+        private readonly Mock<IReservationRepository> _reservationRepoMock;
         private readonly Mock<IUnitOfWork> _unitOfWorkMock;
         private readonly Mock<IMapper> _mapperMock;
         private readonly Mock<ILogger<BookService>> _loggerMock;
@@ -23,17 +28,31 @@ namespace LibTest
 
         public BookServiceTests()
         {
+            _bookRepoMock = new Mock<IBookRepository>();
+            _tagRepoMock = new Mock<ITagRepository>();
+            _userRepoMock = new Mock<IUserRepository>();
+            _lendingRepoMock = new Mock<ILendingRepository>();
+            _reservationRepoMock = new Mock<IReservationRepository>();
             _unitOfWorkMock = new Mock<IUnitOfWork>();
             _mapperMock = new Mock<IMapper>();
             _loggerMock = new Mock<ILogger<BookService>>();
             _cacheMock = new Mock<ICacheService>();
-            _bookService = new BookService(_unitOfWorkMock.Object, _mapperMock.Object, _loggerMock.Object, _cacheMock.Object);
+
+            _bookService = new BookService(
+                _bookRepoMock.Object,
+                _tagRepoMock.Object,
+                _userRepoMock.Object,
+                _lendingRepoMock.Object,
+                _reservationRepoMock.Object,
+                _unitOfWorkMock.Object,
+                _mapperMock.Object,
+                _loggerMock.Object,
+                _cacheMock.Object);
         }
 
         [Fact]
         public async Task GetBooksAsync_ShouldReturnBooksFromCache_WhenCacheExists()
         {
-            // Arrange
             var cachedBooks = new List<BookDto>
             {
                 new() { Title = "Test Book 1", Author = "Author 1", InventoryCount = 1, CategoryName = "Fiction", Tags = new List<string>(), Status = "Available" },
@@ -43,18 +62,15 @@ namespace LibTest
             _cacheMock.Setup(x => x.GetAsync<IEnumerable<BookDto>>("book_list"))
                 .ReturnsAsync(cachedBooks);
 
-            // Act
             var result = await _bookService.GetBooksAsync();
 
-            // Assert
             result.Should().BeEquivalentTo(cachedBooks);
-            _unitOfWorkMock.Verify(x => x.Books.GetBooksAsync(), Times.Never);
+            _bookRepoMock.Verify(x => x.GetBooksAsync(), Times.Never);
         }
 
         [Fact]
         public async Task GetBooksAsync_ShouldReturnBooksFromDatabase_WhenCacheDoesNotExist()
         {
-            // Arrange
             var books = new List<Book>
             {
                 new() { Id = 1, Title = "Test Book 1", Author = "Author 1", InventoryCount = 1, Status = BookStatus.Available,  Category = new Category { Id = 1, Name = "Fiction" } },
@@ -68,18 +84,16 @@ namespace LibTest
             };
 
             _cacheMock.Setup(x => x.GetAsync<IEnumerable<BookDto>>("book_list"))
-                .ReturnsAsync(new List<BookDto>());
+                .ReturnsAsync(null as IEnumerable<BookDto>);
 
-            _unitOfWorkMock.Setup(x => x.Books.GetBooksAsync())
+            _bookRepoMock.Setup(x => x.GetBooksAsync())
                 .ReturnsAsync(books);
 
             _mapperMock.Setup(x => x.Map<IEnumerable<BookDto>>(books))
                 .Returns(bookDtos);
 
-            // Act
             var result = await _bookService.GetBooksAsync();
 
-            // Assert
             result.Should().BeEquivalentTo(bookDtos);
             _cacheMock.Verify(x => x.SetAsync("book_list", bookDtos, null), Times.Once);
         }
@@ -87,74 +101,80 @@ namespace LibTest
         [Fact]
         public async Task BorrowBookAsync_ShouldThrowException_WhenBookNotFound()
         {
-            // Arrange
             var command = new BorrowBookCommand(1, 1);
-            _unitOfWorkMock.Setup(x => x.Books.GetBookByIdAsync(1))
+            _bookRepoMock.Setup(x => x.GetBookByIdAsync(1))
                 .ReturnsAsync((Book?)null);
 
-            // Act & Assert
             await Assert.ThrowsAsync<Exception>(() => _bookService.BorrowBookAsync(command));
         }
 
         [Fact]
         public async Task BorrowBookAsync_ShouldThrowException_WhenBookNotAvailable()
         {
-            // Arrange
             var command = new BorrowBookCommand(1, 1);
             var book = new Book
             {
-                Id = 1, Title = "Some Title", Author = "Some Author", Status = BookStatus.Available, InventoryCount = 0, Category = new Category { Id = 1, Name = "Test Category" }
-            }; var user = new User { Id = 1, MaxBorrowLimit = 5 };
-            _unitOfWorkMock.Setup(x => x.Books.GetBookByIdAsync(1))
-                .ReturnsAsync(book);
+                Id = 1,
+                Title = "Some Title",
+                Author = "Some Author",
+                Status = BookStatus.Available,
+                InventoryCount = 0,
+                Category = new Category { Id = 1, Name = "Test Category" }
+            };
 
-            // Act & Assert
+            _bookRepoMock.Setup(x => x.GetBookByIdAsync(1)).ReturnsAsync(book);
+
             await Assert.ThrowsAsync<Exception>(() => _bookService.BorrowBookAsync(command));
         }
 
         [Fact]
         public async Task BorrowBookAsync_ShouldThrowException_WhenNoCopiesAvailable()
         {
-            // Arrange
             var command = new BorrowBookCommand(1, 1);
-            var book = new Book { Id = 1,
-                Title = "Some Title", Author = "Some Author",Status = BookStatus.Available, InventoryCount = 0,
-                Category = new Category { Id = 1, Name = "Test Category" }
+            var book = new Book
+            {
+                Id = 1,
+                Title = "Some Title",
+                Author = "Some Author",
+                Status = BookStatus.Available,
+                InventoryCount = 0,
+                Category = new Category { Id = 1, Name = "Test Category" } 
             };
             var user = new User { Id = 1, MaxBorrowLimit = 5 };
 
-            _unitOfWorkMock.Setup(x => x.Books.GetBookByIdAsync(1))
-                .ReturnsAsync(book);
-            _unitOfWorkMock.Setup(x => x.Users.GetUserByIdAsync(1))
-                .ReturnsAsync(user);
+            _bookRepoMock.Setup(x => x.GetBookByIdAsync(1)).ReturnsAsync(book);
+            _userRepoMock.Setup(x => x.GetUserByIdAsync(1)).ReturnsAsync(user);
 
-            // Act & Assert
             await Assert.ThrowsAsync<Exception>(() => _bookService.BorrowBookAsync(command));
         }
 
         [Fact]
         public async Task BorrowBookAsync_ShouldSucceed_WhenBookIsAvailable()
         {
-            // Arrange
             var command = new BorrowBookCommand(1, 1);
             var book = new Book
             {
-                Id = 1, Title = "Some Title", Author = "Some Author", Status = BookStatus.Available, InventoryCount = 0, Category = new Category { Id = 1, Name = "Test Category" }
-            }; var user = new User { Id = 1, MaxBorrowLimit = 5 };
+                Id = 1,
+                Title = "Some Title",
+                Author = "Some Author",
+                Status = BookStatus.Available,
+                InventoryCount = 1,
+                Category = new Category { Id = 1, Name = "Test Category" }
+            };
 
-            _unitOfWorkMock.Setup(x => x.Books.GetBookByIdAsync(1))
-                .ReturnsAsync(book);
-            _unitOfWorkMock.Setup(x => x.Users.GetUserByIdAsync(1))
-                .ReturnsAsync(user);
-            _unitOfWorkMock.Setup(x => x.Lendings.GetActiveBorrowedCountByUserAsync(1))
-                .ReturnsAsync(0);
+            var user = new User { Id = 1, MaxBorrowLimit = 5 };
 
-            // Act
+            _bookRepoMock.Setup(x => x.GetBookByIdAsync(1)).ReturnsAsync(book);
+            _userRepoMock.Setup(x => x.GetUserByIdAsync(1)).ReturnsAsync(user);
+            _lendingRepoMock.Setup(x => x.GetActiveBorrowedCountByUserAsync(1)).ReturnsAsync(0);
+
+            _unitOfWorkMock.Setup(x => x.SaveChangesAsync()).ReturnsAsync(1);
+            _unitOfWorkMock.Setup(x => x.CommitTransactionAsync()).Returns(Task.CompletedTask);
+
             await _bookService.BorrowBookAsync(command);
 
-            // Assert
-            _unitOfWorkMock.Verify(x => x.Lendings.AddLendingAsync(It.IsAny<Lending>()), Times.Once);
-            _unitOfWorkMock.Verify(x => x.Books.UpdateBookAsync(It.IsAny<Book>()), Times.Once);
+            _lendingRepoMock.Verify(x => x.AddLendingAsync(It.IsAny<Lending>()), Times.Once);
+            _bookRepoMock.Verify(x => x.UpdateBookAsync(It.IsAny<Book>()), Times.Once);
             _unitOfWorkMock.Verify(x => x.SaveChangesAsync(), Times.Once);
             _unitOfWorkMock.Verify(x => x.CommitTransactionAsync(), Times.Once);
             _cacheMock.Verify(x => x.RemoveAsync($"book_{book.Id}"), Times.Once);

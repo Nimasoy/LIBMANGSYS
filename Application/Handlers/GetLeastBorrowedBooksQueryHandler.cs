@@ -3,15 +3,15 @@ using Domain.Interfaces;
 using Application.Queries;
 using AutoMapper;
 using MediatR;
-using Application.Services;
+using Application.Interfaces;
 
 namespace Application.Handlers
 {
     public class GetLeastBorrowedBooksQueryHandler : IRequestHandler<GetLeastBorrowedBooksQuery, IEnumerable<BookDto>>
     {
-        private readonly BookService _bookService;
+        private readonly IBookService _bookService;
 
-        public GetLeastBorrowedBooksQueryHandler(BookService bookService)
+        public GetLeastBorrowedBooksQueryHandler(IBookService bookService)
         {
             _bookService = bookService;
         }

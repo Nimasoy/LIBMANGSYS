@@ -1,5 +1,5 @@
 ﻿using Application.Queries;
-using Application.Services;
+using Application.Interfaces;
 using Domain.Entities;
 using MediatR;
 
@@ -7,9 +7,9 @@ namespace Application.Handlers
 {
     public class GetTagsQueryHandler : IRequestHandler<GetTagsQuery, IEnumerable<Tag>>
     {
-        private readonly TagService _tagService;
+        private readonly ITagService _tagService;
 
-        public GetTagsQueryHandler(TagService tagService)
+        public GetTagsQueryHandler(ITagService tagService)
         {
             _tagService = tagService;
         }

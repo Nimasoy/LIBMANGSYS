@@ -1,5 +1,5 @@
 ﻿using Application.Commands;
-using Application.Services;
+using Application.Interfaces;
 using Domain.Interfaces;
 using MediatR;
 
@@ -7,9 +7,9 @@ namespace Application.Handlers
 {
     public class DeleteTagCommandHandler : IRequestHandler<DeleteTagCommand, Unit>
     {
-        private readonly TagService _tagService;
+        private readonly ITagService _tagService;
 
-        public DeleteTagCommandHandler(TagService tagService)
+        public DeleteTagCommandHandler(ITagService tagService)
         {
             _tagService = tagService;
         }

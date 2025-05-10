@@ -5,14 +5,20 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Services
 {
-    public class TagService
+    public class TagService : ITagService
     {
+        private readonly ITagRepository _tagRepo;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<TagService> _logger;
         private readonly ICacheService _cache;
 
-        public TagService(IUnitOfWork unitOfWork, ILogger<TagService> logger, ICacheService cache)
+        public TagService(
+            ITagRepository tagRepo,
+            IUnitOfWork unitOfWork,
+            ILogger<TagService> logger,
+            ICacheService cache)
         {
+            _tagRepo = tagRepo;
             _unitOfWork = unitOfWork;
             _logger = logger;
             _cache = cache;
@@ -28,7 +34,7 @@ namespace Application.Services
                 return cached;
             }
 
-            var tags = await _unitOfWork.Tags.GetTagsAsync();
+            var tags = await _tagRepo.GetTagsAsync();
             await _cache.SetAsync(key, tags);
             return tags;
         }
@@ -36,7 +42,7 @@ namespace Application.Services
         public async Task CreateTagAsync(string name)
         {
             var tag = new Tag { Name = name };
-            await _unitOfWork.Tags.AddTagAsync(tag);
+            await _tagRepo.AddTagAsync(tag);
             await _unitOfWork.SaveChangesAsync();
             _logger.LogInformation("Tag created: {Name}", name);
             await _cache.RemoveAsync("tag_list");
@@ -44,7 +50,7 @@ namespace Application.Services
 
         public async Task DeleteTagAsync(int id)
         {
-            await _unitOfWork.Tags.DeleteTagAsync(id);
+            await _tagRepo.DeleteTagAsync(id);
             await _unitOfWork.SaveChangesAsync();
             _logger.LogInformation("Tag deleted: Id={Id}", id);
             await _cache.RemoveAsync("tag_list");

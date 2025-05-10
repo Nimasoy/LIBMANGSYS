@@ -10,15 +10,34 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.Services
 {
-    public class BookService
+    public class BookService : IBookService
     {
+        private readonly IBookRepository _bookRepo;
+        private readonly ITagRepository _tagRepo;
+        private readonly IUserRepository _userRepo;
+        private readonly ILendingRepository _lendingRepo;
+        private readonly IReservationRepository _reservationRepo;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ILogger<BookService> _logger;
         private readonly ICacheService _cache;
 
-        public BookService(IUnitOfWork unitOfWork, IMapper mapper, ILogger<BookService> logger, ICacheService cache)
+        public BookService(
+         IBookRepository bookRepo,
+         ITagRepository tagRepo,
+         IUserRepository userRepo,
+         ILendingRepository lendingRepo,
+         IReservationRepository reservationRepo,
+         IUnitOfWork unitOfWork,
+         IMapper mapper,
+         ILogger<BookService> logger,
+         ICacheService cache)
         {
+            _bookRepo = bookRepo;
+            _tagRepo = tagRepo;
+            _userRepo = userRepo;
+            _lendingRepo = lendingRepo;
+            _reservationRepo = reservationRepo;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
@@ -35,7 +54,7 @@ namespace Application.Services
                 return cached;
             }
 
-            var books = await _unitOfWork.Books.GetBooksAsync();
+            var books = await _bookRepo.GetBooksAsync();
             var dtos = _mapper.Map<IEnumerable<BookDto>>(books);
             await _cache.SetAsync(key, dtos);
             return dtos;
@@ -51,7 +70,7 @@ namespace Application.Services
                 return cached;
             }
 
-            var book = await _unitOfWork.Books.GetBookByIdAsync(id);
+            var book = await _bookRepo.GetBookByIdAsync(id);
             if (book == null) throw new Exception("Book not found");
 
             var dto = _mapper.Map<BookDto>(book);
@@ -65,10 +84,10 @@ namespace Application.Services
 
             book.InventoryCount = request.InventoryCount;
 
-            var tags = await _unitOfWork.Tags.GetTagsByIdsAsync(request.TagIds);
+            var tags = await _tagRepo.GetTagsByIdsAsync(request.TagIds);
             book.Tags = tags.ToList();
 
-            await _unitOfWork.Books.AddBookAsync(book);
+            await _bookRepo.AddBookAsync(book);
             await _unitOfWork.SaveChangesAsync();
 
             _logger.LogInformation("Book added: {Title}", book.Title);
@@ -80,7 +99,7 @@ namespace Application.Services
 
         public async Task UpdateBookAsync(UpdateBookCommand request)
         {
-            var book = await _unitOfWork.Books.GetBookByIdAsync(request.Id);
+            var book = await _bookRepo.GetBookByIdAsync(request.Id);
             if (book == null)
             {
                 _logger.LogWarning("Update failed: Book not found. Id={Id}", request.Id);
@@ -90,9 +109,9 @@ namespace Application.Services
             book.Title = request.Title;
             book.Author = request.Author;
             book.CategoryId = request.CategoryId;
-            var tags = await _unitOfWork.Tags.GetTagsByIdsAsync(request.TagIds);
+            var tags = await _tagRepo.GetTagsByIdsAsync(request.TagIds);
             book.Tags = tags.ToList();
-            await _unitOfWork.Books.UpdateBookAsync(book);
+            await _bookRepo.UpdateBookAsync(book);
             await _unitOfWork.SaveChangesAsync();
             _logger.LogInformation("Book updated: Id={Id}", book.Id);
             await _cache.RemoveAsync($"book_{book.Id}");
@@ -101,13 +120,13 @@ namespace Application.Services
 
         public async Task DeleteBookAsync(int id)
         {
-            var book = await _unitOfWork.Books.GetBookByIdAsync(id);
+            var book = await _bookRepo.GetBookByIdAsync(id);
             if (book == null)
             {
                 _logger.LogWarning("Delete failed: Book not found. Id={Id}", id);
                 throw new Exception("Book not found.");
             }
-            await _unitOfWork.Books.DeleteBookAsync(book);
+            await _bookRepo.DeleteBookAsync(book);
             await _unitOfWork.SaveChangesAsync();
             _logger.LogInformation("Book deleted: Id={Id}", book.Id);
             await _cache.RemoveAsync($"book_{id}");
@@ -119,7 +138,7 @@ namespace Application.Services
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var book = await _unitOfWork.Books.GetBookByIdAsync(request.BookId);
+                var book = await _bookRepo.GetBookByIdAsync(request.BookId);
                 if (book == null)
                 {
                     _logger.LogWarning("Borrow failed: Book not found. BookId={Id}", request.BookId);
@@ -133,10 +152,10 @@ namespace Application.Services
                     throw new Exception("No copies available.");
                 }
 
-                var user = await _unitOfWork.Users.GetUserByIdAsync(request.UserId);
+                var user = await _userRepo.GetUserByIdAsync(request.UserId);
                 if (user == null) throw new Exception("User not found.");
 
-                var userBorrowedCount = await _unitOfWork.Lendings.GetActiveBorrowedCountByUserAsync(user.Id);
+                var userBorrowedCount = await _lendingRepo.GetActiveBorrowedCountByUserAsync(user.Id);
                 if (userBorrowedCount >= user.MaxBorrowLimit)
                     throw new Exception("User has reached the maximum borrow limit.");
 
@@ -157,8 +176,8 @@ namespace Application.Services
                     book.Status = BookStatus.Borrowed;
                 }
 
-                await _unitOfWork.Lendings.AddLendingAsync(lending);
-                await _unitOfWork.Books.UpdateBookAsync(book);
+                await _lendingRepo.AddLendingAsync(lending);
+                await _bookRepo.UpdateBookAsync(book);
 
                 await _cache.RemoveAsync($"book_{book.Id}");
                 await _cache.RemoveAsync("book_list");
@@ -180,13 +199,13 @@ namespace Application.Services
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                var lending = await _unitOfWork.Lendings.GetActiveLendingAsync(request.BookId, request.UserId);
+                var lending = await _lendingRepo.GetActiveLendingAsync(request.BookId, request.UserId);
                 if (lending == null) throw new Exception("Lending not found.");
 
                 lending.ReturnedAt = DateTime.UtcNow;
                 lending.Book.InventoryCount++;
 
-                var activeReservations = await _unitOfWork.Reservations.GetActiveReservationsForBookAsync(lending.BookId);
+                var activeReservations = await _reservationRepo.GetActiveReservationsForBookAsync(lending.BookId);
                 var oldestReservation = activeReservations.OrderBy(r => r.ReservedAt).FirstOrDefault();
 
                 if (oldestReservation != null)
@@ -201,9 +220,9 @@ namespace Application.Services
                         DueAt = DateTime.UtcNow.AddDays(14)
                     };
 
-                    await _unitOfWork.Reservations.RemoveReservationAsync(oldestReservation);
+                    await _reservationRepo.RemoveReservationAsync(oldestReservation);
 
-                    await _unitOfWork.Lendings.AddLendingAsync(newLending);
+                    await _lendingRepo.AddLendingAsync(newLending);
 
                     lending.Book.Status = BookStatus.Borrowed;
                     lending.Book.InventoryCount--;
@@ -215,14 +234,12 @@ namespace Application.Services
                 }
                 else
                 {
-                    // If no reservations, set status to Available
                     lending.Book.Status = BookStatus.Available;
                 }
 
-                await _unitOfWork.Lendings.UpdateLending(lending);
-                await _unitOfWork.Books.UpdateBookAsync(lending.Book);
+                await _lendingRepo.UpdateLending(lending);
+                await _bookRepo.UpdateBookAsync(lending.Book);
 
-                // Clear both individual book cache and list cache
                 await _cache.RemoveAsync($"book_{request.BookId}");
                 await _cache.RemoveAsync("book_list");
 
@@ -241,13 +258,13 @@ namespace Application.Services
 
         public async Task ReserveBookAsync(ReserveBookCommand request)
         {
-            var user = await _unitOfWork.Users.GetUserByIdAsync(request.UserId);
+            var user = await _userRepo.GetUserByIdAsync(request.UserId);
             if (user == null) throw new Exception("User not found.");
-            var book = await _unitOfWork.Books.GetBookByIdAsync(request.BookId);
+            var book = await _bookRepo.GetBookByIdAsync(request.BookId);
             if (book == null || book.Status == BookStatus.Available)
                 throw new Exception("Book is available or not found.");
 
-            var activeBorrowCount = await _unitOfWork.Lendings.GetActiveBorrowedCountByUserAsync(user.Id);
+            var activeBorrowCount = await _lendingRepo.GetActiveBorrowedCountByUserAsync(user.Id);
             if (activeBorrowCount >= user.MaxBorrowLimit)
                 throw new Exception("User has reached borrow limit.");
 
@@ -261,27 +278,34 @@ namespace Application.Services
                 ExpiresAt = DateTime.UtcNow.AddDays(7)
             };
 
-            await _unitOfWork.Reservations.AddReservationAsync(reservation);
+            await _reservationRepo.AddReservationAsync(reservation);
             await _unitOfWork.SaveChangesAsync();
             _logger.LogInformation("Book reserved: BookId={BookId}, UserId={UserId}", request.BookId, request.UserId);
         }
 
         public async Task<IEnumerable<BookDto>> GetMostBorrowedAsync(int count)
         {
-            var books = await _unitOfWork.Books.GetMostBorrowedAsync(count);
+            var books = await _bookRepo.GetMostBorrowedAsync(count);
             return _mapper.Map<IEnumerable<BookDto>>(books);
         }
 
         public async Task<IEnumerable<BookDto>> GetLeastBorrowedAsync(int count)
         {
-            var books = await _unitOfWork.Books.GetLeastBorrowedAsync(count);
+            var books = await _bookRepo.GetLeastBorrowedAsync(count);
             return _mapper.Map<IEnumerable<BookDto>>(books);
         }
 
         public async Task<IEnumerable<BookDto>> GetBorrowedBooksByUserIdAsync(int userId)
         {
-            var books = await _unitOfWork.Books.GetBorrowedBooksByUserId(userId);
+            var books = await _bookRepo.GetBorrowedBooksByUserId(userId);
             return _mapper.Map<IEnumerable<BookDto>>(books);
         }
+
+        public async Task<IEnumerable<OverdueDto>> GetOverdueBooksAsync()
+        {
+            var lendings = await _lendingRepo.GetOverdueLendingsAsync();
+            return _mapper.Map<IEnumerable<OverdueDto>>(lendings);
+        }
+
     }
 }

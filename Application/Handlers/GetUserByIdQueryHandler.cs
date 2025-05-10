@@ -3,15 +3,15 @@ using Domain.Interfaces;
 using Application.Queries;
 using AutoMapper;
 using MediatR;
-using Application.Services;
+using Application.Interfaces;
 
 namespace Application.Handlers
 {
     public class GetUserByIdQueryHandler : IRequestHandler<GetUserByIdQuery, UserDto>
     {
-        private readonly UserService _userService;
+        private readonly IUserService _userService;
 
-        public GetUserByIdQueryHandler(UserService userService)
+        public GetUserByIdQueryHandler(IUserService userService)
         {
             _userService = userService;
         }
