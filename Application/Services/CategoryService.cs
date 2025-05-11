@@ -5,6 +5,7 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using Polly.Registry;
 
 namespace Application.Services
 {
@@ -15,35 +16,41 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly ILogger<CategoryService> _logger;
         private readonly ICacheService _cache;
+        private readonly ResiliencePipelineProvider<string> _pipelineProvider;
 
         public CategoryService(
             ICategoryRepository categoryRepo,
             IUnitOfWork unitOfWork,
             IMapper mapper,
             ILogger<CategoryService> logger,
-            ICacheService cache)
+            ICacheService cache, ResiliencePipelineProvider<string> pipelineProvider)
         {
             _categoryRepo = categoryRepo;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _logger = logger;
             _cache = cache;
+            _pipelineProvider = pipelineProvider;
         }
 
         public async Task<IEnumerable<CategoryDto>> GetCategoriesAsync()
         {
-            const string key = "category_list";
-            var cached = await _cache.GetAsync<IEnumerable<CategoryDto>>(key);
-            if (cached is not null)
+            var pipeline = _pipelineProvider.GetPipeline("read-pipeline");
+            return await pipeline.ExecuteAsync(async _ =>
             {
-                _logger.LogInformation("Categories returned from cache");
-                return cached;
-            }
+                const string key = "category_list";
+                var cached = await _cache.GetAsync<IEnumerable<CategoryDto>>(key);
+                if (cached is not null)
+                {
+                    _logger.LogInformation("Categories returned from cache");
+                    return cached;
+                }
 
-            var categories = await _categoryRepo.GetCategoriesAsync();
-            var dtos = _mapper.Map<IEnumerable<CategoryDto>>(categories);
-            await _cache.SetAsync(key, dtos);
-            return dtos;
+                var categories = await _categoryRepo.GetCategoriesAsync();
+                var dtos = _mapper.Map<IEnumerable<CategoryDto>>(categories);
+                await _cache.SetAsync(key, dtos);
+                return dtos;
+            });
         }
 
         public async Task CreateCategoryAsync(CreateCategoryCommand request)

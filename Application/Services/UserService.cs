@@ -6,6 +6,7 @@ using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using Polly.Registry;
 
 public class UserService : IUserService
 {
@@ -17,6 +18,7 @@ public class UserService : IUserService
     private readonly ITokenService _tokenService;
     private readonly ILogger<UserService> _logger;
     private readonly ICacheService _cache;
+    private readonly ResiliencePipelineProvider<string> _pipelineProvider;
 
     public UserService(
         IUserRepository userRepo,
@@ -26,7 +28,8 @@ public class UserService : IUserService
         IPasswordHasher<User> passwordHasher,
         ITokenService tokenService,
         ILogger<UserService> logger,
-        ICacheService cache)
+        ICacheService cache,
+        ResiliencePipelineProvider<string> pipelineProvider)
     {
         _userRepo = userRepo;
         _lendingRepo = lendingRepo;
@@ -36,6 +39,7 @@ public class UserService : IUserService
         _tokenService = tokenService;
         _logger = logger;
         _cache = cache;
+        _pipelineProvider = pipelineProvider;
     }
 
     public async Task<string> LoginAsync(CreateLoginCommand request)
@@ -60,33 +64,41 @@ public class UserService : IUserService
 
     public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
     {
-        const string key = "user_list";
-        var cached = await _cache.GetAsync<IEnumerable<UserDto>>(key);
-        if (cached is not null)
+        var pipeline = _pipelineProvider.GetPipeline("read-pipeline");
+        return await pipeline.ExecuteAsync(async _ =>
         {
-            _logger.LogInformation("Users returned from cache");
-            return cached;
-        }
+            const string key = "user_list";
+            var cached = await _cache.GetAsync<IEnumerable<UserDto>>(key);
+            if (cached is not null)
+            {
+                _logger.LogInformation("Users returned from cache");
+                return cached;
+            }
 
-        var users = await _userRepo.GetUsersAsync();
-        return _mapper.Map<IEnumerable<UserDto>>(users);
+            var users = await _userRepo.GetUsersAsync();
+            return _mapper.Map<IEnumerable<UserDto>>(users);
+        });
     }
 
     public async Task<UserDto> GetUserByIdAsync(int id)
     {
-        var key = $"user_{id}";
-        var cached = await _cache.GetAsync<UserDto>(key);
-        if (cached is not null)
+        var pipeline = _pipelineProvider.GetPipeline("read-pipeline");
+        return await pipeline.ExecuteAsync(async _ =>
         {
-            _logger.LogInformation("User {Id} returned from cache", id);
-            return cached;
-        }
+            var key = $"user_{id}";
+            var cached = await _cache.GetAsync<UserDto>(key);
+            if (cached is not null)
+            {
+                _logger.LogInformation("User {Id} returned from cache", id);
+                return cached;
+            }
 
-        var user = await _userRepo.GetUserByIdAsync(id);
-        if (user == null) throw new Exception("User not found");
-        var dto = _mapper.Map<UserDto>(user);
-        await _cache.SetAsync(key, dto);
-        return dto;
+            var user = await _userRepo.GetUserByIdAsync(id);
+            if (user == null) throw new Exception("User not found");
+            var dto = _mapper.Map<UserDto>(user);
+            await _cache.SetAsync(key, dto);
+            return dto;
+        });
     }
 
     public async Task<UserDto> CreateUserAsync(CreateUserCommand request)

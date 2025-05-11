@@ -9,6 +9,13 @@ using Application.Interfaces;
 using Infrastructure.Persistence;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
+using Polly;
+using Polly.Retry;
+using Polly.RateLimiting;
+using Microsoft.Data.SqlClient;
+using Polly.Timeout;
+using System.Threading.RateLimiting;
+
 
 namespace Infrastructure
 {
@@ -32,6 +39,57 @@ namespace Infrastructure
             services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
             services.AddScoped<ITokenService, TokenService>();
 
+            services.AddResiliencePipeline("read-pipeline", builder =>
+            {
+                builder
+                    .AddTimeout(TimeSpan.FromSeconds(3))
+                    .AddRetry(new RetryStrategyOptions
+                    {
+                    ShouldHandle = new PredicateBuilder()
+                        .Handle<SqlException>()
+                        .Handle<DbUpdateException>()
+                        .Handle<TimeoutRejectedException>(),
+                    MaxRetryAttempts = 3,
+                    BackoffType = DelayBackoffType.Exponential,
+                    Delay = TimeSpan.FromSeconds(2),
+                    UseJitter = true
+                });
+            });
+
+            services.AddResiliencePipeline("write-pipeline", builder =>
+            {
+                builder
+                .AddTimeout(TimeSpan.FromSeconds(5))
+                .AddRetry(new RetryStrategyOptions
+                {
+                    ShouldHandle = new PredicateBuilder()
+                        .Handle<SqlException>()
+                        .Handle<DbUpdateException>()
+                        .Handle<TimeoutRejectedException>(),
+                    MaxRetryAttempts = 3,
+                    BackoffType = DelayBackoffType.Exponential,
+                    Delay = TimeSpan.FromSeconds(3),
+                    UseJitter = true,
+                    OnRetry = args =>
+                    {
+                        Console.WriteLine($"[WRITE RETRY] Attempt #{args.AttemptNumber}");
+                        return default;
+                    }
+                });
+            });
+
+            services.AddResiliencePipeline("reserve-pipeline", builder =>
+            {
+                builder
+                    .AddRateLimiter(new SlidingWindowRateLimiter(
+                        new SlidingWindowRateLimiterOptions
+                        {
+                            PermitLimit = 100,
+                            SegmentsPerWindow = 4,
+                            Window = TimeSpan.FromMinutes(1)
+                        })
+                );
+            });
             return services;
         }
     }

@@ -2,6 +2,7 @@
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.Extensions.Logging;
+using Polly.Registry;
 
 namespace Application.Services
 {
@@ -11,32 +12,39 @@ namespace Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<TagService> _logger;
         private readonly ICacheService _cache;
+        private readonly ResiliencePipelineProvider<string> _pipelineProvider;
 
         public TagService(
             ITagRepository tagRepo,
             IUnitOfWork unitOfWork,
             ILogger<TagService> logger,
-            ICacheService cache)
+            ICacheService cache,
+            ResiliencePipelineProvider<string> pipelineProvider)
         {
             _tagRepo = tagRepo;
             _unitOfWork = unitOfWork;
             _logger = logger;
             _cache = cache;
+            _pipelineProvider = pipelineProvider;
         }
 
         public async Task<IEnumerable<Tag>> GetTagsAsync()
         {
-            const string key = "tag_list";
-            var cached = await _cache.GetAsync<IEnumerable<Tag>>(key);
-            if (cached is not null)
+            var pipeline = _pipelineProvider.GetPipeline("read-pipeline");
+            return await pipeline.ExecuteAsync(async _ =>
             {
-                _logger.LogInformation("Tags returned from cache");
-                return cached;
-            }
+                const string key = "tag_list";
+                var cached = await _cache.GetAsync<IEnumerable<Tag>>(key);
+                if (cached is not null)
+                {
+                    _logger.LogInformation("Tags returned from cache");
+                    return cached;
+                }
 
-            var tags = await _tagRepo.GetTagsAsync();
-            await _cache.SetAsync(key, tags);
-            return tags;
+                var tags = await _tagRepo.GetTagsAsync();
+                await _cache.SetAsync(key, tags);
+                return tags;
+            });
         }
 
         public async Task CreateTagAsync(string name)
