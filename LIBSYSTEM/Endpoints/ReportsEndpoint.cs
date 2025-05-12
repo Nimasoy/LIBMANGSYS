@@ -1,4 +1,4 @@
-﻿using Application.Queries;
+﻿using Application.Queries.Books;
 using MediatR;
 
 namespace LIBSYSTEM.Endpoints

@@ -1,5 +1,5 @@
-﻿using Application.Commands;
-using Application.Queries;
+﻿using Application.Commands.Tags;
+using Application.Queries.Tags;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

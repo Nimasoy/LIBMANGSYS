@@ -1,4 +1,4 @@
-﻿using Application.Commands;
+﻿using Application.Commands.Login;
 using MediatR;
 
 namespace LIBSYSTEM.Endpoints

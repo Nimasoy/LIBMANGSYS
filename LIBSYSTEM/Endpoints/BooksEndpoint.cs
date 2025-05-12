@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using Application.Queries;
-using Application.Commands;
+using Application.Queries.Books;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using Application.Commands.Books;
 namespace LIBSYSTEM.Endpoints   
 {
     public static class BooksEndpoints

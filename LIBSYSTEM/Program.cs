@@ -5,12 +5,12 @@ using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using LIBSYSTEM.Middleware;
-using Application.Validators;
 using FluentValidation;
 using Application.Services;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
+using Application.Validators.Books;
 namespace LIBSYSTEM
 {
     public class Program

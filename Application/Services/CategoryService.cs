@@ -1,4 +1,4 @@
-﻿using Application.Commands;
+﻿using Application.Commands.Categories;
 using Application.DTOs;
 using Application.Interfaces;
 using AutoMapper;

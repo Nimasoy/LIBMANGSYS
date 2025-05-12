@@ -1,4 +1,4 @@
-﻿namespace Infrastructure
+﻿namespace Application.Services
 {
     using Microsoft.Extensions.Configuration;
     using Microsoft.IdentityModel.Tokens;

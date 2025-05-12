@@ -1,7 +1,7 @@
 ﻿using MediatR;
-using Application.Queries;
-using Application.Commands;
+using Application.Queries.Categories;
 using Microsoft.AspNetCore.Mvc;
+using Application.Commands.Categories;
 namespace LIBSYSTEM.Endpoints
 {
     public static class CategoriesEndpoint
