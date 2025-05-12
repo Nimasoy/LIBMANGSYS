@@ -10,6 +10,8 @@ using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Application.Interfaces;
 using Application.Commands;
+using Polly.Registry;
+using System.Runtime.CompilerServices;
 
 namespace LibTest
 {
@@ -25,6 +27,7 @@ namespace LibTest
         private readonly Mock<ILogger<BookService>> _loggerMock;
         private readonly Mock<ICacheService> _cacheMock;
         private readonly BookService _bookService;
+        private readonly Mock<ResiliencePipelineProvider<string>> _pipelineMock;
 
         public BookServiceTests()
         {
@@ -37,6 +40,7 @@ namespace LibTest
             _mapperMock = new Mock<IMapper>();
             _loggerMock = new Mock<ILogger<BookService>>();
             _cacheMock = new Mock<ICacheService>();
+            _pipelineMock = new Mock<ResiliencePipelineProvider<string>>();
 
             _bookService = new BookService(
                 _bookRepoMock.Object,
@@ -47,7 +51,8 @@ namespace LibTest
                 _unitOfWorkMock.Object,
                 _mapperMock.Object,
                 _loggerMock.Object,
-                _cacheMock.Object);
+                _cacheMock.Object,
+                _pipelineMock.Object);
         }
 
         [Fact]
