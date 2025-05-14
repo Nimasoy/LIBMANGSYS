@@ -15,6 +15,7 @@ namespace Application
             services.AddMediatR(cfg =>
             {
                 cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+                cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
             });
 
             services.AddAutoMapper(typeof(DependencyInjection).Assembly);

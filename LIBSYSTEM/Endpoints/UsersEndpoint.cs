@@ -2,14 +2,17 @@
 using Application.Queries.Users;
 using Application.Queries.Books;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 using Application.Commands.Users;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.IdentityModel.Tokens;
 namespace LIBSYSTEM.Endpoints
 {
     public static class UsersEndpoint
     {
         public static void MapUsersEndpoints(this IEndpointRouteBuilder app)
         {
+            
+            
             // all-users access
 
             // add user
@@ -18,6 +21,7 @@ namespace LIBSYSTEM.Endpoints
                 var result = await sender.Send(command);
                 return Results.Ok(result);
             }).WithTags("Users");
+
             // view user borrowed books
             app.MapGet("api/users/{id}/borrowed", async (int id, ISender sender) =>
             {

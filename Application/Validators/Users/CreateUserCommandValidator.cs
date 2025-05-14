@@ -10,6 +10,9 @@ namespace Application.Validators.Users
             RuleFor(x => x.UserName).NotEmpty();
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.Password).NotEmpty();
+            RuleFor(x => x.Role)
+            .Must(role => role == "User" || role == "Librarian")
+            .WithMessage("Role must be 'User' or 'Librarian'");
         }
     }
 }
