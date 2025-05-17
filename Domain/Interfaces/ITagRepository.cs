@@ -13,6 +13,5 @@ namespace Domain.Interfaces
 
         Task<IEnumerable<Tag>> GetTagsByIdsAsync(IEnumerable<int> ids);
 
-
     }
 }

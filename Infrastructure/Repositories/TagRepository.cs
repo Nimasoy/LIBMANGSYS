@@ -43,6 +43,5 @@ namespace Infrastructure.Repositories
             return await _context.Tags.Where(t => ids.Contains(t.Id)).ToListAsync();
         }
 
-
     }
 } 

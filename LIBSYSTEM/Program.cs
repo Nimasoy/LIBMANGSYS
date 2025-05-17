@@ -71,6 +71,8 @@ namespace LIBSYSTEM
 
             var app = builder.Build();
 
+            app.UseMiddleware<GlobalExceptionMiddleware>();
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -79,8 +81,6 @@ namespace LIBSYSTEM
             }
 
             app.MapAllEndpoints();
-
-            app.UseMiddleware<GlobalExceptionMiddleware>();
 
             app.UseSerilogRequestLogging();
 

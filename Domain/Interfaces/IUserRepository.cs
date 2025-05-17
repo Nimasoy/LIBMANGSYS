@@ -14,6 +14,5 @@ namespace Domain.Interfaces
 
         Task<User?> GetByEmailAsync(string email);
         Task<IEnumerable<Lending>> GetUserBorrowingHistoryAsync(int userId);
-
     }
 }

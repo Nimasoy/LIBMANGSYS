@@ -39,6 +39,5 @@ namespace Infrastructure.Repositories
             _context.Categories.Remove(category);
             return Task.CompletedTask;
         }
-
     }
-} 
+}

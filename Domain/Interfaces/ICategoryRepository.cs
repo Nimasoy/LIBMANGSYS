@@ -11,6 +11,5 @@ namespace Domain.Interfaces
         Task AddCategoryAsync(Category category);
         Task UpdateCategoryAsync(Category category);
         Task DeleteCategoryAsync(Category category);
-
     }
 }
