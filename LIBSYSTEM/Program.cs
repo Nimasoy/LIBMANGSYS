@@ -1,16 +1,16 @@
-using Serilog;
-using Infrastructure;
 using Application;
+using Application.Services;
+using Application.Interfaces;
+using Application.Validators.Books;
+using Infrastructure;
 using Domain.Entities;
-using Infrastructure.Data;
 using Microsoft.AspNetCore.Identity;
 using LIBSYSTEM.Middleware;
 using FluentValidation;
-using Application.Services;
-using Application.Interfaces;
+using Serilog;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
-using Application.Validators.Books;
+
 namespace LIBSYSTEM
 {
     public class Program
@@ -47,7 +47,7 @@ namespace LIBSYSTEM
                     Name = "Authorization",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.Http,
-                    Description = "Enter 'Bearer {your token}'",
+                    Description = "Enter you token please: ",
 
                     Reference = new OpenApiReference
                     {
